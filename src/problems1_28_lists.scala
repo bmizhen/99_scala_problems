@@ -431,8 +431,8 @@ object problems1_28_lists {
     * just once. The third and fourth lists have length 3 and there are two list of this length.
     * Finally, the last three lists have length 2. This is the most frequent length.
     */
-  def lsortFreq[A](l:List[List[A]]) = {
-    val freqMap = l map (_.size) groupBy(identity) mapValues(_.size)
-    l.sortBy(x=>freqMap(x.size))
+  def lsortFreq[A](l: List[List[A]]) = {
+    val freqMap = l map (_.size) groupBy (identity) mapValues (_.size)
+    l.sortBy(x => freqMap(x.size))
   }
 }
