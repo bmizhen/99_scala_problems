@@ -1,5 +1,10 @@
 /**
   * Created by boriska on 10/1/16.
+  *
+  * Given an integer amount, and a list of possible coin denominations
+  * return the shortest list of coins that add up to the amount or None if
+  * it is not possible.
+  * Assume an infinite supply of coins of the given denomination.
   */
 object LeastCoins {
 
