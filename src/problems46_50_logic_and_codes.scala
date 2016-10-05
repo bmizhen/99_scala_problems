@@ -74,8 +74,9 @@ object problems46_50_logic_and_codes {
     * See if you can use memoization to make the function more efficient.
     */
   def gray(n: Int): List[String] = {
-    if (n == 0) List("")
-    else {
+    if (n == 0) {
+      List("")
+    } else {
       val c = gray(n - 1)
       c.map("0" + _) ++ c.reverse.map("1" + _)
     }
@@ -92,14 +93,18 @@ object problems46_50_logic_and_codes {
     * res0: List[String, String] = List((a,0), (b,101), (c,100), (d,111), (e,1101), (f,1100))
     */
   object huffman {
+
     abstract class Encoder extends Ordered[Encoder] {
       val freq: Int
+
       def compare(that: Encoder): Int = that.freq - this.freq
     }
+
     case class Node(zero: Encoder, one: Encoder, freq: Int) extends Encoder
+
     case class Leaf(v: String, freq: Int) extends Encoder
 
-    def huffman(freqs: List[(String, Int)]):List[(String, String)] = {
+    def huffman(freqs: List[(String, Int)]): List[(String, String)] = {
       val queue = mutable.PriorityQueue[Encoder]() ++ freqs.map(t => Leaf(t._1, t._2))
 
       while (queue.size > 1) {
@@ -108,7 +113,7 @@ object problems46_50_logic_and_codes {
         queue.enqueue(Node(n1, n2, n1.freq + n2.freq))
       }
 
-      def encoding(encoder:Encoder, path: String):List[(String, String)] = encoder match {
+      def encoding(encoder: Encoder, path: String): List[(String, String)] = encoder match {
         case Leaf(s, _) => List((s, path))
         case Node(zero, one, _) => encoding(zero, path + "0") ++ encoding(one, path + "1")
       }
@@ -118,5 +123,3 @@ object problems46_50_logic_and_codes {
   }
 
 }
-
-

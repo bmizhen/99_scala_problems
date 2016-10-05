@@ -152,8 +152,8 @@ object problems31_41_arithmetics {
     * 18 = 5 + 13
     * 20 = 3 + 17
     */
-  def printGoldbachList(r:Range):Unit = {
-    for (n <- (((r.start + 1)/2)*2 to r.end by 2)) {
+  def printGoldbachList(r: Range): Unit = {
+    for (n <- ((r.start + 1) / 2) * 2 to r.end by 2) {
       println(n, " = ", goldbach(n))
     }
   }
