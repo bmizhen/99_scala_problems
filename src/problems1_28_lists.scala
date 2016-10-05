@@ -1,4 +1,5 @@
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.util.Random
 
 /**
@@ -63,7 +64,7 @@ object problems1_28_lists {
   }
 
   /**
-    * P05 (*) Reverse a list.
+    * Reverse a list.
     * Example:
     * scala> reverse(List(1, 1, 2, 3, 5, 8))
     * res0: List[Int] = List(8, 5, 3, 2, 1, 1)
@@ -75,6 +76,27 @@ object problems1_28_lists {
       case h :: tail => reverseRec(h :: result, tail)
     }
     reverseRec(Nil, l)
+  }
+
+  /**
+    * Reverse a mutable list in-place.
+    *
+    * @return reference to the reversed list.
+    */
+  case class MutableList[A](var value: A, var tail: MutableList[A])
+
+  def reverseMutable[A](list: MutableList[A]): MutableList[A] = {
+    var dest: MutableList[A] = null
+    var source = list
+
+    while (source != null) {
+      val tmp = source.tail
+      source.tail = dest
+      dest = source
+      source = tmp
+    }
+
+    dest
   }
 
   /**
