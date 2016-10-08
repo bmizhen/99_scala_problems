@@ -126,7 +126,7 @@ object problems51_69_binary_trees {
     * res0: List[Node[String]] = List(T(x T(x . T(x . .)) T(x T(x . .) .)),
     * T(x T(x T(x . .) .) T(x . T(x . .))))
     */
-  def symmetricBalancedTrees[A](n:Int, value:A) = {
+  def symmetricBalancedTrees[A](n: Int, value: A) = {
     cBalanced(n, value).filter(isSymmetric(_))
   }
 }
