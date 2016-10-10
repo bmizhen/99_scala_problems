@@ -5,15 +5,19 @@ object problems51_69_binary_trees {
 
   abstract class Tree[+A] {
     def nodes: Int
+
+    def height: Int
   }
 
   case object None extends Tree[Nothing] {
-    def nodes = 0
+    val nodes = 0
+    val height = 0
   }
 
   case class Node[A](left: Tree[A], right: Tree[A], value: A) extends Tree[A] {
     def this(value: A) = this(None, None, value)
 
+    val height = Math.max(left.height, right.height)
     val nodes: Int = left.nodes + right.nodes + 1
   }
 
@@ -128,5 +132,30 @@ object problems51_69_binary_trees {
     */
   def symmetricBalancedTrees[A](n: Int, value: A) = {
     cBalanced(n, value).filter(isSymmetric(_))
+  }
+
+  /**
+    * Construct height-balanced binary trees.
+    * In a height-balanced binary tree, the following property holds for
+    * every node: The height of its left subtree and the height of its right
+    * subtree are almost equal, which means their difference is not greater
+    * than one.
+    * Write a method Tree.hbalTrees to construct height-balanced binary trees
+    * for a given height with a supplied value for the nodes. The function
+    * should generate all solutions.
+    *
+    * scala> Tree.hbalTrees(3, "x")
+    * res0: List[Node[String]] = List(T(x T(x T(x . .) T(x . .))
+    * T(x T(x . .) T(x . .))), T(x T(x T(x . .) T(x . .)) T(x T(x . .) .)), ...
+    */
+  def hbalTrees[A](h: Int, value: A): List[Tree[A]] = {
+    if (h < 1) List(None)
+    else if (h == 1) List(new Node(value))
+    else {
+      for {h1 <- hbalTrees(h - 1, value)
+           h2 <- hbalTrees(h - 2, value)} yield {
+        List(Node(h1, h2, value), Node(h1, h1, value), Node(h2, h1, value))
+      }
+    }.flatten
   }
 }
