@@ -79,19 +79,12 @@ object problems51_69_binary_trees {
     * Write a function to add an element to a binary search tree.
     * scala> End.addValue(2)
     * res0: Node[Int] = T(2 . .)
-    * *
+    *
     * scala> res0.addValue(3)
     * res1: Node[Int] = T(2 . T(3 . .))
-    * *
+    *
     * scala> res1.addValue(0)
     * res2: Node[Int] = T(2 T(0 . .) T(3 . .))
-    * Hint: The abstract definition of addValue in Tree should be
-    * def addValue[U >: T <% Ordered[U]](x: U): Tree[U].
-    * The >: T is because addValue's parameters need to be contravariant in T.
-    * (Conceptually, we're adding nodes above existing nodes. In order for the
-    * subnodes to be of type T or any subtype, the upper nodes must be of type
-    * T or any supertype.) The <% Ordered[U] allows us to use the < operator
-    * on the values in the tree.
     *
     * Use that function to construct a binary tree from a list of integers.
     *
@@ -105,7 +98,8 @@ object problems51_69_binary_trees {
     * scala> Tree.fromList(List(3, 2, 5, 7, 4)).isSymmetric
     * res5: Boolean = false
     */
-  def addValue[U <% Ordered[U]](value: U, tree: Tree[U]): Tree[U] = tree match {
+  def addValue[U](value: U, tree: Tree[U])
+                 (implicit ev:U => Ordered[U]): Tree[U] = tree match {
     case None => new Node(value)
     case x: Node[U] =>
       if (value == x.value) {
@@ -117,7 +111,8 @@ object problems51_69_binary_trees {
       }
   }
 
-  def fromList[U <% Ordered[U]](l: List[U]): Tree[U] = {
+  def fromList[U](l: List[U])
+                 (implicit ev:U => Ordered[U]): Tree[U] = {
     val t: Tree[U] = None
     l.foldLeft(t)((x, y: U) => addValue(y, x))
   }
