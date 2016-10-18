@@ -343,8 +343,8 @@ object problems51_69_binary_trees {
   def fromString(s: String): Tree[Char] = {
     def fromList(tokens: List[Char]): (List[Char], Tree[Char]) = tokens match {
       case Nil => (Nil, None)
-      case ',' :: _ => (tokens, None) // Handles a(,_) case
-      case ')' :: _ => (tokens, None) // Handles a(_,) case
+      case ',' :: _ => (tokens, None) // _(,_)
+      case ')' :: _ => (tokens, None) // _(_,)
       case head :: '(' :: rest => {  // a(_, _)
         val (coma, left) = fromList(rest)
         val (closedBrace, right) = fromList(coma.tail)
