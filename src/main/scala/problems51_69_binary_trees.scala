@@ -16,6 +16,8 @@ object problems51_69_binary_trees {
   case object None extends Tree[Nothing] {
     val nodes = 0
     val height = 0
+
+    override val toString: String = ""
   }
 
   case class Node[A](left: Tree[A], right: Tree[A], value: A) extends Tree[A] {
@@ -23,6 +25,14 @@ object problems51_69_binary_trees {
 
     val height = Math.max(left.height, right.height) + 1
     val nodes: Int = left.nodes + right.nodes + 1
+
+    override def toString: String = {
+      "" + value + {
+        if (left != None || right != None) {
+          "(" + left + ", " + right + ")"
+        } else ""
+      }
+    }
   }
 
 
@@ -296,6 +306,54 @@ object problems51_69_binary_trees {
     *
     * scala> Tree.completeBinaryTree(6, "x")
     * res0: Node[String] = T(x T(x T(x . .) T(x . .)) T(x T(x . .) .))
-    *
     */
+  def completeBinaryTree[A](nodes: Int, value: A): Tree[A] = {
+    def completeBinaryTree(address: Int): Tree[A] = {
+      if (address > nodes) None
+      else {
+        Node(completeBinaryTree(address * 2),
+          completeBinaryTree(address * 2 + 1),
+          value)
+      }
+    }
+
+    completeBinaryTree(1)
+  }
+
+  /**
+    * A string representation of binary trees.
+    * Somebody represents binary trees as strings of the following type
+    * (see example opposite): a(b(d,e),c(,f(g,)))
+    * Write a method which generates this string representation, if the tree is
+    * given as usual (in Nodes and Ends). Use that method for the Tree class's
+    * and subclass's toString methods. Then write a method (on the Tree object)
+    * which does this inverse; i.e. given the string representation, construct
+    * the tree in the usual form.
+    *
+    * For simplicity, suppose the information in the nodes is a single letter
+    * and there are no spaces in the string.
+    *
+    * scala> Node('a', Node('b', Node('d'), Node('e')), Node('
+    * c', End, Node('f', Node('g'), End))).toString
+    * res0: String = a(b(d,e),c(,f(g,)))
+    *
+    * scala> Tree.fromString("a(b(d,e),c(,f(g,)))")
+    * res1: Node[Char] = a(b(d,e),c(,f(g,)))
+    */
+  def fromString(s: String): Tree[Char] = {
+    def fromList(tokens: List[Char]): (List[Char], Tree[Char]) = tokens match {
+      case Nil => (Nil, None)
+      case ',' :: _ => (tokens, None)
+      case ')' :: _ => (tokens, None)
+      case head :: Nil => (Nil, new Node(head))
+      case head :: '(' :: rest => {
+        val (coma, left) = fromList(rest)
+        val (closed, right) = fromList(coma.tail)
+        (closed.tail, Node(left, right, head))
+      }
+      case head :: next => (next, new Node(head))
+    }
+
+    fromList(s.toList)._2
+  }
 }
