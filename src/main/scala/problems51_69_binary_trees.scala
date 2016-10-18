@@ -345,12 +345,12 @@ object problems51_69_binary_trees {
       case Nil => (Nil, None)
       case ',' :: _ => (tokens, None) // _(,_)
       case ')' :: _ => (tokens, None) // _(_,)
-      case head :: '(' :: rest => {  // a(_, _)
-        val (coma, left) = fromList(rest)
+      case head :: '(' :: tail => {  // a(_, _)
+        val (coma, left) = fromList(tail)
         val (closedBrace, right) = fromList(coma.tail)
         (closedBrace.tail, Node(left, right, head))
       }
-      case head :: next => (next, new Node(head)) // "a", _(a,_) and _(_,a)
+      case head :: tail => (tail, new Node(head)) // "a", _(a,_) and _(_,a)
     }
 
     fromList(s.toList)._2
