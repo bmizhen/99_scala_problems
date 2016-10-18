@@ -348,8 +348,8 @@ object problems51_69_binary_trees {
       case head :: Nil => (Nil, new Node(head))
       case head :: '(' :: rest => {
         val (coma, left) = fromList(rest)
-        val (closed, right) = fromList(coma.tail)
-        (closed.tail, Node(left, right, head))
+        val (closedBrace, right) = fromList(coma.tail)
+        (closedBrace.tail, Node(left, right, head))
       }
       case head :: next => (next, new Node(head))
     }
