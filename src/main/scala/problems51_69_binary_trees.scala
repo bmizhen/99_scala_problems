@@ -1,3 +1,7 @@
+import com.sun.glass.ui.Window.Level
+
+import scala.annotation.tailrec
+
 /**
   * Created by boriska on 10/5/16.
   */
@@ -17,7 +21,7 @@ object problems51_69_binary_trees {
   case class Node[A](left: Tree[A], right: Tree[A], value: A) extends Tree[A] {
     def this(value: A) = this(None, None, value)
 
-    val height = Math.max(left.height, right.height)
+    val height = Math.max(left.height, right.height) + 1
     val nodes: Int = left.nodes + right.nodes + 1
   }
 
@@ -99,7 +103,7 @@ object problems51_69_binary_trees {
     * res5: Boolean = false
     */
   def addValue[U](value: U, tree: Tree[U])
-                 (implicit ev:U => Ordered[U]): Tree[U] = tree match {
+                 (implicit ev: U => Ordered[U]): Tree[U] = tree match {
     case None => new Node(value)
     case x: Node[U] =>
       if (value == x.value) {
@@ -112,7 +116,7 @@ object problems51_69_binary_trees {
   }
 
   def fromList[U](l: List[U])
-                 (implicit ev:U => Ordered[U]): Tree[U] = {
+                 (implicit ev: U => Ordered[U]): Tree[U] = {
     val t: Tree[U] = None
     l.foldLeft(t)((x, y: U) => addValue(y, x))
   }
@@ -147,10 +151,151 @@ object problems51_69_binary_trees {
     if (h < 1) List(None)
     else if (h == 1) List(new Node(value))
     else {
-      for {h1 <- hbalTrees(h - 1, value)
-           h2 <- hbalTrees(h - 2, value)} yield {
-        List(Node(h1, h2, value), Node(h1, h1, value), Node(h2, h1, value))
-      }
-    }.flatten
+      val tall = hbalTrees(h - 1, value)
+      val short = hbalTrees(h - 2, value)
+
+      val tt = for {n1 <- tall; n2 <- tall} yield Node(n1, n2, value)
+      val ts = for {n1 <- tall; n2 <- short} yield Node(n1, n2, value)
+      val st = for {n1 <- tall; n2 <- short} yield Node(n2, n1, value)
+
+      tt ::: ts ::: st
+    }
   }
+
+  /**
+    * Consider a height-balanced binary tree of height H. What is the maximum
+    * number of nodes it can contain? Clearly, MaxN = 2H - 1. However, what is
+    * the minimum number MinN? This question is more difficult. Try to find a
+    * recursive statement and turn it into a function minHbalNodes that takes
+    * a height and returns MinN.
+    *
+    * scala> minHbalNodes(3)
+    * res0: Int = 4
+    * On the other hand, we might ask: what is the maximum height H a
+    * height-balanced binary tree with N nodes can have?
+    * Write a maxHbalHeight function.
+    *
+    * scala> maxHbalHeight(4)
+    * res1: Int = 3
+    * Now, we can attack the main problem: construct all the height-balanced
+    * binary trees with a given number of nodes.
+    *
+    * scala> Tree.hbalTreesWithNodes(4, "x")
+    * res2: List[Node[String]] = List(T(x T(x T(x . .) .) T(x . .)),
+    * T(x T(x . T(x . .)) T(x . .)), ...
+    * Find out how many height-balanced trees exist for N = 15.
+    */
+  def minHbalNodes(height: Int): Int = height match {
+    case 0 => 0
+    case 1 => 1
+    case x => 1 + minHbalNodes(x - 1) + minHbalNodes(x - 2)
+  }
+
+  def maxHbalHeight(n: Int): Int = {
+    Stream.from(1).dropWhile(minHbalNodes(_) < n).head
+  }
+
+  def minHbalHeight(n: Int): Int = n match {
+    case 0 => 0
+    case 1 => 1
+    case x => 1 + minHbalHeight(n / 2)
+  }
+
+  def hbalTreesWithNodes[A](nodes: Int, value: A): List[Tree[A]] = {
+    (for {i <- minHbalHeight(nodes) to maxHbalHeight(nodes)} yield {
+      hbalTrees(i, value).filter(_.nodes == nodes)
+    }).flatten.toList
+  }
+
+  /**
+    * A leaf is a node with no successors. Write a method leafCount to count them.
+    * scala> Node('x', Node('x'), End).leafCount
+    * res0: Int = 1
+    */
+  def leafCount[A](tree: Tree[A]): Int = tree match {
+    case None => 0
+    case Node(None, None, _) => 1
+    case Node(l, r, _) => leafCount(l) + leafCount(r)
+  }
+
+  /**
+    * Collect the leaves of a binary tree in a list.
+    * A leaf is a node with no successors. Write a method leafList to collect
+    * them in a list.
+    * scala> Node('a', Node('b'), Node('c', Node('d'), Node('e'))).leafList
+    * res0: List[Char] = List(b, d, e)
+    */
+  def leafList[A](tree: Tree[A]): List[A] = {
+    def leafList[A](tree: Tree[A], acc: List[A]): List[A] = tree match {
+      case None => acc
+      case Node(None, None, value) => value :: acc
+      case Node(l, r, _) =>
+        leafList(r, leafList(l, acc))
+    }
+
+    leafList(tree, Nil)
+  }
+
+  /**
+    * Collect the internal nodes of a binary tree in a list.
+    * An internal node of a binary tree has either one or two non-empty
+    * successors. Write a method internalList to collect them in a list.
+    * scala> Node('a', Node('b'), Node('c', Node('d'), Node('e'))).internalList
+    * res0: List[Char] = List(a, c)
+    */
+  def internalList[A](tree: Tree[A]): List[A] = {
+    def internalList(tree: Tree[A], acc: List[A]): List[A] = tree match {
+      case None => acc
+      case Node(None, None, _) => acc
+      case Node(l, r, v) => internalList(l, internalList(r, v :: acc))
+    }
+    internalList(tree, Nil)
+  }
+
+  /**
+    * Collect the nodes at a given level in a list.
+    * A node of a binary tree is at level N if the path from the root to the
+    * node has length N-1. The root node is at level 1. Write a method atLevel
+    * to collect all nodes at a given level in a list.
+    * scala> Node('a', Node('b'), Node('c', Node('d'), Node('e'))).atLevel(2)
+    * res0: List[Char] = List(b, c)
+    * Using atLevel it is easy to construct a method levelOrder which creates
+    * the level-order sequence of the nodes. However, there are more efficient
+    * ways to do that.
+    */
+  def atLevel[A](level: Int, tree: Tree[A]): List[A] = {
+    def atLevel(level: Int, tree: Tree[A], acc: List[A]): List[A] = tree match {
+      case None => acc
+      case Node(l, r, v) =>
+        if (level == 1) v :: acc
+        else atLevel(level - 1, l, atLevel(level - 1, r, acc))
+    }
+    atLevel(level, tree, Nil)
+  }
+
+  /**
+    * Construct a complete binary tree.
+    * A complete binary tree with height H is defined as follows:
+    * The levels 1,2,3,...,H-1 contain the maximum number of nodes
+    * (i.e 2(i-1) at the level i, note that we start counting the levels from
+    * 1 at the root). In level H, which may contain less than the maximum
+    * possible number of nodes, all the nodes are "left-adjusted". This means
+    * that in a levelorder tree traversal all internal nodes come first, the
+    * leaves come second, and empty successors (the Ends which are not really
+    * nodes!) come last. Particularly, complete binary trees are used as data
+    * structures (or addressing schemes) for heaps.
+    *
+    * We can assign an address number to each node in a complete binary tree by
+    * enumerating the nodes in levelorder, starting at the root with number 1.
+    * In doing so, we realize that for every node X with address A the following
+    * property holds: The address of X's left and right successors are 2*A and
+    * 2*A+1, respectively, supposed the successors do exist. This fact can be
+    * used to elegantly construct a complete binary tree structure. Write a
+    * method completeBinaryTree that takes as parameters the number of nodes and
+    * the value to put in each node.
+    *
+    * scala> Tree.completeBinaryTree(6, "x")
+    * res0: Node[String] = T(x T(x T(x . .) T(x . .)) T(x T(x . .) .))
+    *
+    */
 }
