@@ -347,8 +347,8 @@ object problems51_69_binary_trees {
       case ')' :: _ => (tokens, None) // _(_,)
       case head :: '(' :: tail => {  // a(_, _)
         val (coma, left) = fromList(tail)
-        val (closedBrace, right) = fromList(coma.tail)
-        (closedBrace.tail, Node(left, right, head))
+        val (closeParen, right) = fromList(coma.tail)
+        (closeParen.tail, Node(left, right, head))
       }
       case head :: tail => (tail, new Node(head)) // "a", _(a,_) and _(_,a)
     }
