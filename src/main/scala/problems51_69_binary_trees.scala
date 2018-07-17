@@ -1,5 +1,3 @@
-import com.sun.glass.ui.Window.Level
-
 import scala.annotation.tailrec
 
 /**
